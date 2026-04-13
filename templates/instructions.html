@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Study Instructions</title>
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <!-- Optional diagram lib -->
+    <script src="{{ url_for('static', filename='vendor/mermaid/mermaid.min.js') }}"></script>
+    <!-- Your trace renderer -->
+    <script src="{{ url_for('static', filename='js/trace-renderer.js') }}"></script>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3 class="card-title mb-3">Sequence Matching Study</h3>
+                <p class="fs-5 alert alert-secondary">
+                    In this study, you will be asked to decide whether short sequences of states (“traces”) match an
+                    English temporal rule. Questions involve a panel of lights with three colors: Red, Green, and Blue.
+                    Use only the provided rule, not your prior intuition, to make your judgment.
+                </p>
+
+
+                <div class="alert fs-5">
+                    <h4 class="mb-2">How to Read a State</h4>
+                    <p>
+                        A state captures what is happening at one moment in time. It lists which lights are on and off at that moment. <b>You can click on any trace to enlarge it.</b>
+                    </p>
+                    <div class="ltl-spot-trace" data-word="b & !g & !r"> "b & !g & !r" </div>
+
+
+                </div>
+
+                <div class="alert fs-5">
+                    <h4 class="mb-2">How to Read a Trace</h4>
+                    <p>
+                        A <b>trace</b> is a sequence of states connected by arrows representing the passage of time.
+                        That is, each arrow means "the next moment in time".
+                        All traces in this study end in a cycle, shown with a loop/back-arrow.
+                        This means the final part of the trace repeats forever. For example:
+                    </p>
+
+                    <div class="mt-2 alert alert-secondary" role="alert">
+                        <b>Rule:</b> "Every time the Blue light (<code>b</code>) is on, the Green light (<code>g</code>) must eventually turn on."</b>
+                    </div>
+
+                    <div class="card border-success mb-3">
+                        <div class="card-header bg-success text-white py-2">These traces match the rule </div>
+                        <div class="card-body">
+
+
+                            <div class="ltl-spot-trace mb-2"
+                                data-word="!b & !g & !r; b & !g & r; !b & g & !r; cycle{!b & !g & r}">
+                                !b & !g & !r; b & !g & r; !b & g & !r; cycle{!b & !g & r}
+                            </div>
+                            <p class="mb-1 fst-italic small">
+                                The rule places no restrictions on the value of <code>r</code>.
+                                Its requirements concern only the relationship between <code>b</code> and
+                                <code>g</code>.
+                            </p>
+
+
+                            <hr>
+                            <div class="ltl-spot-trace mb-2"
+                                data-word="b & !g & !r; b & !g & !r; !b & g & !r; cycle{!b & !g & !r}">
+                                b & !g & !r; b & !g & !r; !b & g & !r; cycle{!b & !g & !r}
+                            </div>
+                            <p class="mb-1 fst-italic small">Even though the Blue light is on in two states (state 1 and state 2) and the Green light is only on in state 3,
+                                the rule has not been violated. The Green light turns on in a state after the states where the Blue light is on.</p>
+
+                        </div>
+                    </div>
+
+                    <!-- Invalid traces -->
+                    <div class="card border-danger mb-3">
+                        <div class="card-header bg-danger text-white py-2">These traces do <u>not</u> match the rule.
+                        </div>
+                        <div class="card-body">
+
+                            <div class="ltl-spot-trace mb-2" data-word="b & !g & !r; cycle{!b & !g & !r}">
+                                b & !g & !r; cycle{!b & !g & !r}
+                            </div>
+                            <p class="mb-1 fst-italic small">The Blue light turns on in state 1, the Green light never turns on afterwards.</p>
+                            <hr>
+
+                            <div class="ltl-spot-trace mb-0"
+                                data-word="!b & g & !r; b & !g & !r; cycle{b & !g & !r}">
+                                !b & g & !r; b & !g & !r; cycle{b & !g & !r}
+                            </div>
+                            <p class="mb-1 fst-italic small">The Green light is only on before the Blue light turns on (state 2); after the Blue light turns on, the Green light never turns on again.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- 6) Proceed -->
+                <p class="fs-5">
+                    Please click the button below once you understand how to read traces and states, and are ready to
+                    proceed.
+                </p>
+
+                <form method="POST" action="{{ url_for('instructions') }}">
+                    <button type="submit" name="understand" value="true" class="btn btn-primary fs-5">
+                        I understand and wish to proceed
+                    </button>
+                    <button type="submit" name="understand" value="false" class="btn btn-secondary fs-5 ms-2">
+                        I do not understand OR wish to exit the study
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        TraceRenderer.init();
+    </script>
+</body>
+
+</html>
