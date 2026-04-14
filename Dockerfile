@@ -9,6 +9,9 @@ RUN micromamba create -y -n myenv python=3.11 -c conda-forge spot pip && \
     micromamba clean --all --yes && \
     rm -f /tmp/requirements.txt || true
 
+# default to SQLite in-memory backend
+ENV DB_BACKEND=sqlite
+
 # app code
 COPY . /src
 WORKDIR /src
