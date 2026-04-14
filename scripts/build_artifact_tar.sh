@@ -35,18 +35,35 @@ docker save -o "$OUTPUT_TAR" "$APP_IMAGE_TAG" "$DB_IMAGE_TAG"
 cp "docker-compose.artifact.yml" "$COMPOSE_OUT"
 
 cat >"$README_OUT" <<EOF
-Artifact quickstart:
+Artifact quickstart (SQLite in-memory -- no database setup needed):
 
 1) Load images:
    docker image load -i $(basename "$OUTPUT_TAR")
 
-2) Start services:
+2) Start the app:
    docker compose up -d
 
 3) Open app:
    http://localhost:8080
 
-4) Stop services:
+4) Stop:
+   docker compose down
+
+---
+To use MySQL instead (persistent storage):
+
+1) Load images (same as above).
+
+2) Create a .env file alongside compose.yaml:
+   DB_BACKEND=mysql
+
+3) Start with the mysql profile:
+   docker compose --profile mysql up -d
+
+4) Open app:
+   http://localhost:8080
+
+5) Stop:
    docker compose down
 EOF
 

@@ -13,14 +13,20 @@ def get_env_var(key, fallback_dict=fallback_env):
 class Config:
     """Base configuration class."""
 
-    # Attempt to construct the primary database URI
-    try:
-        SQLALCHEMY_DATABASE_URI = (
-            f"mysql+mysqlconnector://{get_env_var('DB_USER')}:{get_env_var('DB_PASSWORD')}"
-            f"@{get_env_var('DB_HOST')}:{int(get_env_var('DB_PORT'))}/{get_env_var('DB_NAME')}"
-        )
-    except (TypeError, ValueError):
-        # Fallback to in-memory SQLite if any required variable is missing or invalid
-        SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Explicit backend selection: DB_BACKEND=sqlite forces SQLite in-memory.
+    # Default (unset or "mysql") attempts MySQL.
+    _backend = (get_env_var("DB_BACKEND") or "mysql").lower()
+
+    if _backend == "sqlite":
+        SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    else:
+        try:
+            SQLALCHEMY_DATABASE_URI = (
+                f"mysql+mysqlconnector://{get_env_var('DB_USER')}:{get_env_var('DB_PASSWORD')}"
+                f"@{get_env_var('DB_HOST')}:{int(get_env_var('DB_PORT'))}/{get_env_var('DB_NAME')}"
+            )
+        except (TypeError, ValueError):
+            # Safety net: fall back to SQLite if MySQL vars are misconfigured
+            SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

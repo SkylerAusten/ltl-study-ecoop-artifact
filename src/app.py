@@ -140,6 +140,8 @@ def normalizeltl(formula):
 with app.app_context():
     # db.drop_all()
     db.create_all()
+    backend = "SQLite (in-memory)" if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"] else "MySQL"
+    app.logger.info(f"Database backend: {backend}")
 
 
 def user_study_complete(user: User) -> bool:
@@ -339,7 +341,7 @@ def setup_user():
             error = None
             if request.method == "POST" and prolific_id:
                 error = "Please enter a valid 24-character Prolific ID."
-            return render_template("enter_pid.html", prolific_id=prolific_id, error=error)
+            return render_template("enter_pid.html", prolific_id=prolific_id or "anon12345000000000000000", error=error)
     else:
         if not prolific_id or not re.fullmatch(r"[0-9a-f]{24}", prolific_id):
             error = None
