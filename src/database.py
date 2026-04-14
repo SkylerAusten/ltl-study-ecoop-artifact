@@ -18,7 +18,6 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.sql import func
-from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.types import TypeDecorator, JSON
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -28,11 +27,11 @@ from custom_types import ClassificationLabel, ClassificationType
 db = SQLAlchemy()
 
 
-# Type decorator to store UUIDs as CHAR(36) in MySQL.
+# Type decorator to store UUIDs as CHAR(36) in MySQL or String(36) in SQLite.
 class UUID(TypeDecorator):
     """TODO: Write Docstring."""
 
-    impl = CHAR
+    impl = String(36)
     cache_ok = True
 
     @property
@@ -40,7 +39,10 @@ class UUID(TypeDecorator):
         return uuid.UUID
 
     def load_dialect_impl(self, dialect):
-        return dialect.type_descriptor(CHAR(36))  # Store as string
+        if dialect.name == "mysql":
+            from sqlalchemy.dialects.mysql import CHAR
+            return dialect.type_descriptor(CHAR(36))
+        return dialect.type_descriptor(String(36))
 
     def process_bind_param(self, value, dialect):
         if value is None:
@@ -63,7 +65,7 @@ class ListJSON(TypeDecorator):
     Ensures list structure is preserved.
     """
 
-    impl = JSON
+    impl = Text
     cache_ok = True
 
     @property
@@ -80,6 +82,8 @@ class ListJSON(TypeDecorator):
     def process_result_value(self, value, dialect):
         if value is None:
             return []
+        if isinstance(value, list):
+            return value
         try:
             return json.loads(value)
         except Exception:

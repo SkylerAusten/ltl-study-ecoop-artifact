@@ -140,6 +140,8 @@ def normalizeltl(formula):
 with app.app_context():
     # db.drop_all()
     db.create_all()
+    backend = "SQLite (in-memory)" if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"] else "MySQL"
+    app.logger.info(f"Database backend: {backend}")
 
 
 def user_study_complete(user: User) -> bool:
